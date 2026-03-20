@@ -1,0 +1,147 @@
+{
+  "CUAN":{
+    "PERCEPCIONES": {
+      "P001": ["SUELDO", "SUELDOS Y SALARIOS"],
+      "P004": {
+        "nombre(s)": ["AGUINALDO (GRATIFICACIÓN ANUAL)", "AGUINALDO"],
+        "tipos": ["ImporteGravado", "ImporteExento"]
+      },
+      "P009": {
+        "nombre(s)": ["VACACIONES"],
+        "tipos": ["ImporteGravado", "ImporteExento"]
+      },
+      "P010": {
+        "nombre(s)": ["PRIMA VACACIONAL"],
+        "tipos": ["ImporteGravado", "ImporteExento"]
+      },
+      "P011": ["REPARTO DE UTILIDADES"],
+      "P020": ["COMPENSACION ESPECIAL"],
+      "P103": ["INDEMNIZACION"],
+      "P104": ["PRIMA DE ANTIGUEDAD"]
+    },
+    "DEDUCCIONES": {
+      "D001": ["ISTP", "ISR"],
+      "D002": ["IMSS", "APORTACION TRABAJADORES IMSS"],
+      "D004": ["DEUDAS DIVERSAS"],
+      "D010": ["PENSION ALIMENTICIA"],
+      "D091": ["SAR VOLUNTARIO"],
+      "D093": ["CREDITO FONACOT"],
+      "D094": ["CREDITO INFONAVIT"],
+      "D100": ["SUBSIDIO PARA EL EMPLEO"],
+      "D101": ["IMPUESTO LOCAL"],
+      "D111": ["SUBS. PARA EL EMPLEO APLICADO"],
+      "D114": ["SEG. POTENC. BASE 2.49%"],
+      "D122–D125": ["DIVERSAS DEDUCCIONES"]
+    }
+  },
+
+  "Felicrece":{
+    "PERCEPCIONES": {
+      "P001": ["SUELDO", "SUELDOS Y SALARIOS"],
+      "P004": {
+        "nombre(s)": ["AGUINALDO (GRATIFICACIÓN ANUAL)", "AGUINALDO"],
+        "tipos": ["ImporteGravado", "ImporteExento"]
+      },
+      "P009": {
+        "nombre(s)": ["VACACIONES"],
+        "tipos": ["ImporteGravado", "ImporteExento"]
+      },
+      "P010": {
+        "nombre(s)": ["PRIMA VACACIONAL"],
+        "tipos": ["ImporteGravado", "ImporteExento"]
+      },
+      "P011": ["REPARTO DE UTILIDADES"],
+      "P020": ["COMPENSACION ESPECIAL"],
+      "P103": ["INDEMNIZACION"],
+      "P104": ["PRIMA DE ANTIGUEDAD"]
+    },
+    "DEDUCCIONES": {
+      "D001": ["ISTP", "ISR"],
+      "D002": ["IMSS", "APORTACION TRABAJADORES IMSS"],
+      "D004": ["DEUDAS DIVERSAS"],
+      "D010": ["PENSION ALIMENTICIA"],
+      "D091": ["SAR VOLUNTARIO"],
+      "D093": ["CREDITO FONACOT"],
+      "D094": ["CREDITO INFONAVIT"],
+      "D100": ["SUBSIDIO PARA EL EMPLEO"],
+      "D101": ["IMPUESTO LOCAL"],
+      "D111": ["SUBS. PARA EL EMPLEO APLICADO"],
+      "D114": ["SEG. POTENC. BASE 2.49%"],
+      "D122–D125": ["DIVERSAS DEDUCCIONES"]
+    }
+  },
+
+  "Fonamex":{
+    "PERCEPCIONES": {
+      "P001": ["SUELDO", "SUELDOS Y SALARIOS"],
+      "P004": {
+        "nombre(s)": ["AGUINALDO (GRATIFICACIÓN ANUAL)", "AGUINALDO"],
+        "tipos": ["ImporteGravado", "ImporteExento"]
+      },
+      "P009": {
+        "nombre(s)": ["VACACIONES"],
+        "tipos": ["ImporteGravado", "ImporteExento"]
+      },
+      "P010": {
+        "nombre(s)": ["PRIMA VACACIONAL"],
+        "tipos": ["ImporteGravado", "ImporteExento"]
+      },
+      "P011": ["REPARTO DE UTILIDADES"],
+      "P020": ["COMPENSACION ESPECIAL"],
+      "P103": ["INDEMNIZACION"],
+      "P104": ["PRIMA DE ANTIGUEDAD"]
+    },
+    "DEDUCCIONES": {
+      "D001": ["ISTP", "ISR"],
+      "D002": ["IMSS", "APORTACION TRABAJADORES IMSS"],
+      "D003": ["DEUDAS DIVERSAS"],
+      "D004": ["PRESTAMO PERSONAL"],
+      "D010": ["PENSION ALIMENTICIA"],
+      "D091": ["SAR VOLUNTARIO"],
+      "D093": ["CREDITO FONACOT"],
+      "D094": ["CREDITO INFONAVIT"],
+      "D100": ["SUBSIDIO PARA EL EMPLEO"],
+      "D101": ["IMPUESTO LOCAL"],
+      "D111": ["SUBS. PARA EL EMPLEO APLICADO"],
+      "D114": ["SEG. POTENC. BASE 2.49%"],
+      "D122–D125": ["DIVERSAS DEDUCCIONES"]
+    }
+  },
+  
+  "Pronamex":{
+    "PERCEPCIONES": {
+      "P001": ["SUELDO", "SUELDOS Y SALARIOS"],
+      "P004": {
+        "nombre(s)": ["AGUINALDO (GRATIFICACIÓN ANUAL)", "AGUINALDO"],
+        "tipos": ["ImporteGravado", "ImporteExento"]
+      },
+      "P009": {
+        "nombre(s)": ["VACACIONES"],
+        "tipos": ["ImporteGravado", "ImporteExento"]
+      },
+      "P010": {
+        "nombre(s)": ["PRIMA VACACIONAL"],
+        "tipos": ["ImporteGravado", "ImporteExento"]
+      },
+      "P011": ["REPARTO DE UTILIDADES"],
+      "P020": ["COMPENSACION ESPECIAL"],
+      "P103": ["INDEMNIZACION"],
+      "P104": ["PRIMA DE ANTIGUEDAD"]
+    },
+    "DEDUCCIONES": {
+      "D001": ["ISTP", "ISR"],
+      "D002": ["IMSS", "APORTACION TRABAJADORES IMSS"],
+      "D004": ["DEUDAS DIVERSAS"],
+      "D008": ["PRESTAMO PERSONAL"],
+      "D010": ["PENSION ALIMENTICIA"],
+      "D091": ["SAR VOLUNTARIO"],
+      "D093": ["CREDITO FONACOT"],
+      "D094": ["CREDITO INFONAVIT"],
+      "D100": ["SUBSIDIO PARA EL EMPLEO"],
+      "D101": ["IMPUESTO LOCAL"],
+      "D111": ["SUBS. PARA EL EMPLEO APLICADO"],
+      "D114": ["SEG. POTENC. BASE 2.49%"],
+      "D122–D125": ["DIVERSAS DEDUCCIONES"]
+    }
+  }
+}
