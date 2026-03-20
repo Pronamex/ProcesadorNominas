@@ -135,7 +135,7 @@
 
             try {
                 // 1️⃣ Intento desde el mismo sitio
-                //let response = await fetch('/json/nom.json', { cache: 'no-cache' });
+                let response = await fetch('/json/nom.json', { cache: 'no-cache' });
 
                 if (!response.ok) {
                     // 2️⃣ Intento desde dominio absoluto
@@ -1186,7 +1186,7 @@
             if (e.target === errorModal) errorModal.style.display = 'none';
             if (e.target === employeeModal) employeeModal.style.display = 'none';
         });
-        
+
         // Inicialización
         resetUI();
         addLog('Selecciona una empresa para comenzar.', 'info');
