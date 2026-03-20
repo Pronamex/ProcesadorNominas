@@ -135,13 +135,13 @@
 
             try {
                 // 1️⃣ Intento desde el mismo sitio
-                let response = await fetch('/json/nom.json', { cache: 'no-cache' });
+                //let response = await fetch('/json/nom.json', { cache: 'no-cache' });
 
                 if (!response.ok) {
                     // 2️⃣ Intento desde dominio absoluto
                     addLog('Intentando cargar catálogo desde el dominio principal...', 'warning');
 
-                    response = await fetch('https://pronamexsacv.com.mx/json/nom.json', { cache: 'no-cache' });
+                    response = await fetch('https://pronamex.github.io/ProcesadorNominas/nom.json', { cache: 'no-cache' });
                     if (!response.ok) {
                         throw new Error('No se pudo cargar el catálogo desde ninguna ubicación.');
                         alert("No se pudo cargar el catálogo desde ninguna ubicación");
@@ -1175,6 +1175,18 @@
             addLog('Listo para un nuevo procesamiento.', 'info');
         });
 
+        // Event listeners para modales de errores y empleados
+        errorCard.addEventListener('click', showErrorModal);
+        employeeCard.addEventListener('click', showEmployeeModal);
+        closeErrorModal.addEventListener('click', () => errorModal.style.display = 'none');
+        closeEmployeeModal.addEventListener('click', () => employeeModal.style.display = 'none');
+
+        // Cerrar modales al hacer clic fuera de ellos
+        window.addEventListener('click', (e) => {
+            if (e.target === errorModal) errorModal.style.display = 'none';
+            if (e.target === employeeModal) employeeModal.style.display = 'none';
+        });
+        
         // Inicialización
         resetUI();
         addLog('Selecciona una empresa para comenzar.', 'info');
