@@ -150,7 +150,7 @@
 
                 nomCatalog = await response.json();
                 addLog('Catálogo de conceptos cargado correctamente (nom.json).', 'success');
-                alert("Catalogo de conceptos cargado correctamente. ver: 1.3 20/02/26");
+                alert("Catalogo de conceptos cargado correctamente. ver: 1.3 20/03/26");
 
             } catch (err) {
                 addLog('Error cargando catálogo de conceptos: ' + err.message, 'error');
@@ -793,11 +793,37 @@
                     for (let i = 0; i < otroPagoList.length; i++) {
                         const otro = otroPagoList[i];
                         const concepto = otro.getAttribute('Concepto');
-                        if (concepto === 'SUBSIDIO PRA EL EMPLEO') {
-                            const subsidioNode = findChildElementByNS(otro, ns.nom, 'SubsidioAlEmpleo');
-                            if (subsidioNode) {
-                                const subsidio = parseFloat(subsidioNode.getAttribute('SubsidioCausado')) || 0;
-                                rowData['SUBSIDIO PARA EL EMPLEO'] = subsidio;
+                        const clave = otro.getAttribute('Clave');
+                        const importe = parseFloat(otro.getAttribute('Importe')) || 0;
+                        
+                        const conceptInfo = findConceptInCatalog('DEDUCCIONES', clave, concepto);
+                        if (conceptInfo) {
+                            const { canonicalKey, config } = conceptInfo;
+                            const hasTypes = config && typeof config === 'object' && config.tipos && Array.isArray(config.tipos);
+                            
+                            if (hasTypes) {
+                                config.tipos.forEach(tipo => {
+                                    let value = 0;
+                                    // Mapeo específico para tipos conocidos en OtrosPagos
+                                    if (tipo === 'SubsidioCausado') {
+                                        const subsidioNode = findChildElementByNS(otro, ns.nom, 'SubsidioAlEmpleo');
+                                        if (subsidioNode) {
+                                            value = parseFloat(subsidioNode.getAttribute('SubsidioCausado')) || 0;
+                                        }
+                                    } else {
+                                        // Para otros tipos, usar el atributo Importe si existe
+                                        value = importe;
+                                    }
+                                    const expandedKey = canonicalKey + '_' + tipo;
+                                    const displayName = getConceptDisplayName('DEDUCCIONES', canonicalKey, tipo);
+                                    conceptUsage.deducciones[expandedKey] = displayName;
+                                    rowData[expandedKey] = (rowData[expandedKey] || 0) + value;
+                                });
+                            } else {
+                                // Concepto simple: usar Importe
+                                const displayName = getConceptDisplayName('DEDUCCIONES', canonicalKey);
+                                conceptUsage.deducciones[canonicalKey] = displayName;
+                                rowData[canonicalKey] = (rowData[canonicalKey] || 0) + importe;
                             }
                         }
                     }
