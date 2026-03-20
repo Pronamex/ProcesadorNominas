@@ -188,15 +188,55 @@
             return null;
         }
 
-        // Devuelve el nombre "bonito" para mostrar en UI/Excel
-        function getConceptDisplayName(section, canonicalKey) {
-            if (!companyConceptConfig || !companyConceptConfig[section]) {
-                return canonicalKey;
+        // Devuelve { canonicalKey, config } del concepto en el catálogo, o null
+        function findConceptInCatalog(section, clave, concepto) {
+            if (!companyConceptConfig || !companyConceptConfig[section]) return null;
+            const catalogSection = companyConceptConfig[section];
+            const codeNorm = normalizeConceptString(clave);
+            const nameNorm = normalizeConceptString(concepto);
+
+            // 1) Buscar por código (clave del XML)
+            for (const [canonicalKey, config] of Object.entries(catalogSection)) {
+                if (normalizeConceptString(canonicalKey) === codeNorm && codeNorm !== '') {
+                    return { canonicalKey, config };
+                }
             }
-            const arr = companyConceptConfig[section][canonicalKey];
-            if (!Array.isArray(arr) || arr.length === 0) return canonicalKey;
-            // Usamos el primer elemento como nombre principal
-            return arr[0] || canonicalKey;
+
+            // 2) Buscar por nombre (dentro de 'nombre(s)' o el array de nombres)
+            for (const [canonicalKey, config] of Object.entries(catalogSection)) {
+                let nombres = [];
+                if (Array.isArray(config)) {
+                    nombres = config;
+                } else if (config && typeof config === 'object' && config['nombre(s)']) {
+                    nombres = config['nombre(s)'];
+                }
+                if (Array.isArray(nombres) && nombres.some(n => normalizeConceptString(n) === nameNorm && nameNorm !== '')) {
+                    return { canonicalKey, config };
+                }
+            }
+            return null;
+        }
+
+        // Devuelve el nombre "bonito" para mostrar en UI/Excel
+        function getConceptDisplayName(section, canonicalKey, tipo = null) {
+            if (!companyConceptConfig || !companyConceptConfig[section]) {
+                return tipo ? `${canonicalKey} ${tipo}` : canonicalKey;
+            }
+            const config = companyConceptConfig[section][canonicalKey];
+            let baseName = canonicalKey;
+            if (Array.isArray(config) && config.length > 0) {
+                baseName = config[0];
+            } else if (config && typeof config === 'object' && config['nombre(s)'] && config['nombre(s)'].length > 0) {
+                baseName = config['nombre(s)'][0];
+            }
+            if (tipo) {
+                let suffix = '';
+                if (tipo === 'ImporteGravado') suffix = 'Grav';
+                else if (tipo === 'ImporteExento') suffix = 'Ex';
+                else suffix = tipo;
+                return `${baseName} ${suffix}`;
+            }
+            return baseName;
         }
 
         // -------------------------------
@@ -659,41 +699,47 @@
                         const importeGravado = parseFloat(per.getAttribute('ImporteGravado')) || 0;
                         const importeExento = parseFloat(per.getAttribute('ImporteExento')) || 0;
 
-                        // --- Mapeo dinámico contra catálogo JSON (PERCEPCIONES) ---
                         const clavePer = per.getAttribute('Clave');
-                        const canonicalPer = matchConceptFromCatalog('PERCEPCIONES', clavePer, concepto);
-                        if (canonicalPer) {
-                            const labelPer = getConceptDisplayName('PERCEPCIONES', canonicalPer);
-                            conceptUsage.percepciones[canonicalPer] = labelPer;
-                            const totalImportePer = importeGravado + importeExento;
-                            rowData[canonicalPer] = (rowData[canonicalPer] || 0) + totalImportePer;
+                        const conceptInfo = findConceptInCatalog('PERCEPCIONES', clavePer, concepto);
+
+                        if (conceptInfo) {
+                            const { canonicalKey, config } = conceptInfo;
+                            const hasTypes = config && typeof config === 'object' && config.tipos && Array.isArray(config.tipos);
+
+                            if (hasTypes) {
+                                // Expandir por cada tipo
+                                config.tipos.forEach(tipo => {
+                                    let suffix = '';
+                                    let importeToAdd = 0;
+                                    if (tipo === 'ImporteGravado') {
+                                        suffix = '_Grav';
+                                        importeToAdd = importeGravado;
+                                    } else if (tipo === 'ImporteExento') {
+                                        suffix = '_Ex';
+                                        importeToAdd = importeExento;
+                                    } else {
+                                        // Para otros tipos (ej. SubsidioCausado) se suma el total
+                                        suffix = '_' + tipo;
+                                        importeToAdd = importeGravado + importeExento;
+                                    }
+                                    const expandedKey = canonicalKey + suffix;
+                                    const displayName = getConceptDisplayName('PERCEPCIONES', canonicalKey, tipo);
+                                    conceptUsage.percepciones[expandedKey] = displayName;
+                                    rowData[expandedKey] = (rowData[expandedKey] || 0) + importeToAdd;
+                                });
+                            } else {
+                                // Concepto simple: suma gravado + exento
+                                const displayName = getConceptDisplayName('PERCEPCIONES', canonicalKey);
+                                conceptUsage.percepciones[canonicalKey] = displayName;
+                                const totalImporte = importeGravado + importeExento;
+                                rowData[canonicalKey] = (rowData[canonicalKey] || 0) + totalImporte;
+                            }
                         }
 
-                        switch (concepto) {
-                            case 'SUELDO':
-                                rowData['SueldoPerGravado'] = importeGravado;
-                                break;
-                            case 'PREMIO DE PUNT Y ASIST':
-                                rowData['PREMIO DE PUNT Y ASIST Grav'] = importeGravado;
-                                break;
-                            case 'VACACIONES':
-                                rowData['VACACIONES Grav'] = importeGravado;
-                                break;
-                            case 'PRIMA VACACIONAL':
-                                rowData['PRIMA VACACIONAL Ex'] = importeExento;
-                                rowData['PRIMA VACACIONAL Grav'] = importeGravado;
-                                break;
-                            case 'PRIMA DE ANTIGUEDAD':
-                                rowData['PRIMA DE ANTIGUEDAD GRA'] = importeGravado;
-                                break;
-                            case 'GRATIFICACION UNICA':
-                                rowData['GRATIFICACION UNICA Grav'] = importeGravado;
-                                break;
-                            case 'AGUINALDO':
-                                rowData['AGUINALDO Ex'] = importeExento;
-                                rowData['AGUINALDO Gra'] = importeGravado;
-                                break;
-                        }
+                        // El resto de los mapeos fijos (SUELDO, VACACIONES, etc.) puedes conservarlos si quieres,
+                        // pero ya no serán necesarios porque el catálogo los cubre.
+                        // Si decides conservarlos, ten cuidado con las duplicidades.
+                        // Yo recomendaría eliminarlos y confiar solo en el catálogo dinámico.
                     }
                 }
 
@@ -770,79 +816,44 @@
             processedXMLData.forEach(data => {
                 const empNum = data.NumEmpleado;
                 if (!empNum) return;
-
-                if (!groupedData[empNum]) {
-                    groupedData[empNum] = [data];
-                } else {
-                    groupedData[empNum].push(data);
-                }
+                if (!groupedData[empNum]) groupedData[empNum] = [];
+                groupedData[empNum].push(data);
             });
+
+            // Lista de campos que NO deben sumarse (identificadores, texto, etc.)
+            const nonNumericKeys = [
+                'UUID', 'UUID2', 'NumEmpleado', 'Receptor', 'RFC_REC', 'Emisor',
+                'Fecha', 'Registro patronal', 'Curp', 'NumSeguridadSocial',
+                'FechaInicioRelLaboral', 'Departamento', 'Puesto', 'ClaveEntFed',
+                'FechaPago', 'FechaInicialPago', 'FechaFinalPago'
+            ];
+
+            finalData = [];
 
             Object.values(groupedData).forEach(group => {
                 if (group.length === 1) {
                     finalData.push(group[0]);
-                        } else {
-                        const combined = { ...group[0] };
-
-                        // Preparamos lista de claves dinámicas del catálogo (SUELDO, AGUINALDO, VACACIONES, etc.)
-                        const dynamicPerKeys = companyConceptConfig?.PERCEPCIONES
-                            ? Object.keys(companyConceptConfig.PERCEPCIONES)
-                            : [];
-                        const dynamicDedKeys = companyConceptConfig?.DEDUCCIONES
-                            ? Object.keys(companyConceptConfig.DEDUCCIONES)
-                            : [];
-                        const dynamicKeys = [...dynamicPerKeys, ...dynamicDedKeys];
-
-                        for (let i = 1; i < group.length; i++) {
-                            const current = group[i];
-                            combined.UUID2 = current.UUID;
-
-                            // Totales globales de nómina
-                            combined.TotalPercepciones += current.TotalPercepciones || 0;
-                            combined.TotalDeducciones += current.TotalDeducciones || 0;
-                            combined.NumDiasPagados += current.NumDiasPagados || 0;
-
-                            // Campos fijos que quieres agrupar
-                            const fixedFields = [
-                                'SueldoPerGravado',
-                                'DESPENSA MONEDERO ELECTRONICO',
-                                'PREMIO DE PUNT Y ASIST Grav',
-                                'ISPT',
-                                'IMSS',
-                                'SUBSIDIO PARA EL EMPLEO',
-                                'CREDITO INFONAVIT',
-                                'PRESTAMO PERSONAL',
-                                'VACACIONES Grav',
-                                'PRIMA VACACIONAL Ex',
-                                'PRIMA VACACIONAL Grav',
-                                'PRIMA DE ANTIGUEDAD GRA',
-                                'GRATIFICACION UNICA Grav',
-                                'DEUDAS DIVERSAS',
-                                'PENSION ALIMENTICIA',
-                                'AGUINALDO Ex',
-                                'AGUINALDO Gra'
-                            ];
-
-                            fixedFields.forEach(field => {
-                                combined[field] = (combined[field] || 0) + (current[field] || 0);
-                            });
-
-                            // 🔹 Campos dinámicos del catálogo (SUELDO, AGUINALDO, VACACIONES, INDEMNIZACION, etc.)
-                            dynamicKeys.forEach(key => {
-                                combined[key] = (combined[key] || 0) + (current[key] || 0);
-                            });
+                } else {
+                    const combined = { ...group[0] };
+                    for (let i = 1; i < group.length; i++) {
+                        const current = group[i];
+                        for (const [key, value] of Object.entries(current)) {
+                            if (nonNumericKeys.includes(key)) {
+                                // Para UUID2, solo guardamos el UUID del segundo XML
+                                if (key === 'UUID2') combined.UUID2 = value;
+                                continue;
+                            }
+                            if (typeof value === 'number') {
+                                combined[key] = (combined[key] || 0) + value;
+                            }
                         }
-
-                        finalData.push(combined);
                     }
-
+                    finalData.push(combined);
+                }
             });
 
             employeesProcessed.textContent = finalData.length.toString();
-
-            if (finalData.length === 0) {
-                addLog('No se procesaron empleados.', 'warning');
-            }
+            if (finalData.length === 0) addLog('No se procesaron empleados.', 'warning');
         }
 
         // -------------------------------
