@@ -149,7 +149,7 @@
                 }
 
                 nomCatalog = await response.json();
-                addLog('Catálogo de conceptos cargado correctamente (nom.json).', 'success');
+                addLog('Catálogo de conceptos cargado correctamente (nom.json).', 'success', 'ver: 1.3 20/02/26');
                 alert("Catalogo de conceptos cargado correctamente.");
 
             } catch (err) {
